@@ -2,7 +2,7 @@ import re
 from pypdf import PdfReader
 
 
-LINE_PATTERN = re.compile(r"^\s*(\d{1,2})\s*(.*)$")
+LINE_PATTERN = re.compile(r"^\s*(\d{1,2})\s+(.*)$")
 PAGE_PATTERN = re.compile(r"Page\s+(\d+)\s*$")
 TIME_PATTERN = re.compile(r"\s+\d{2}:\d{2}\s*$")
 
@@ -33,8 +33,7 @@ def parse_transcript_lines(page):
     the original transcript line number.
 
     The printed transcript page number may occur at
-    the bottom of the extracted PDF text, so we first
-    identify it and then attach it to every line.
+    the bottom of the extracted PDF text.
     """
 
     pdf_page = page["pdf_page"]
@@ -46,7 +45,7 @@ def parse_transcript_lines(page):
     records = []
 
     # --------------------------------------------------
-    # STEP 1: Find the printed transcript page number
+    # STEP 1: Find printed transcript page number
     # --------------------------------------------------
 
     for raw_line in lines:
