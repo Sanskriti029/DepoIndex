@@ -1,4 +1,3 @@
-pip install pypdf
-
-
-python src/extraction.py
+pypdf
+flask
+pytest

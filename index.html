@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DepoIndex</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            color: #d1d5db;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 10px;
+        }
+
+        #query {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 14px 25px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #status {
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .result {
+            background: white;
+            margin-bottom: 18px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .speaker {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .location {
+            color: #555;
+        }
+
+        .score {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .text {
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .utterance {
+            color: #777;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .search-box {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>DepoIndex</h1>
+    <p>Search and explore deposition transcripts</p>
+</header>
+
+<div class="container">
+
+    <div class="search-box">
+        <input
+            id="query"
+            type="text"
+            placeholder="Search the deposition..."
+        >
+
+        <button onclick="searchDeposition()">
+            Search
+        </button>
+    </div>
+
+    <div id="status"></div>
+
+    <div id="results"></div>
+
+</div>
+
+
+<script>
+
+async function searchDeposition() {
+
+    const queryInput = document.getElementById("query");
+    const resultsDiv = document.getElementById("results");
+    const statusDiv = document.getElementById("status");
+
+    const query = queryInput.value.trim();
+
+    if (!query) {
+        statusDiv.textContent = "Please enter a search query.";
+        resultsDiv.innerHTML = "";
+        return;
+    }
+
+    statusDiv.textContent = "Searching...";
+    resultsDiv.innerHTML = "";
+
+    try {
+
+        const response = await fetch(
+            `/search?q=${encodeURIComponent(query)}&limit=5`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            statusDiv.textContent = data.error || "Search failed.";
+            return;
+        }
+
+        statusDiv.textContent =
+            `Found ${data.count} result(s) for "${data.query}"`;
+
+        if (data.results.length === 0) {
+            resultsDiv.innerHTML = `
+                <div class="empty">
+                    No matching results found.
+                </div>
+            `;
+            return;
+        }
+
+        data.results.forEach((result, index) => {
+
+            const start = result.start;
+            const end = result.end;
+
+            const card = document.createElement("div");
+            card.className = "result";
+
+            card.innerHTML = `
+                <div class="result-header">
+
+                    <div>
+                        <div class="speaker">
+                            Speaker: ${escapeHTML(result.speaker)}
+                        </div>
+
+                        <div class="location">
+                            Page ${start.page}, Line ${start.line}
+                            →
+                            Page ${end.page}, Line ${end.line}
+                        </div>
+                    </div>
+
+                    <div class="score">
+                        Score: ${result.score}
+                    </div>
+
+                </div>
+
+                <div class="text">
+                    ${escapeHTML(result.text)}
+                </div>
+
+                <div class="utterance">
+                    Utterance: ${escapeHTML(result.utterance_id)}
+                </div>
+            `;
+
+            resultsDiv.appendChild(card);
+        });
+
+    } catch (error) {
+
+        statusDiv.textContent =
+            "Could not connect to the server.";
+
+        console.error(error);
+    }
+}
+
+
+function escapeHTML(text) {
+
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+document.getElementById("query").addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+            searchDeposition();
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>

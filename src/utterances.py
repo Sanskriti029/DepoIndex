@@ -2,35 +2,31 @@ from typing import List, Dict
 import re
 
 
-def detect_speaker(text: str) -> str | None:
+def detect_speaker(text):
     """
-    Detect explicit speaker labels at the beginning of a transcript line.
-
-    Important:
-    We require Q/A to be followed by whitespace so that normal words
-    such as "At", "And", "Actually", etc. are not mistaken for speakers.
+    Detect the speaker from the beginning of a transcript line.
     """
 
-    text = text.strip()
+    if re.match(r"^\s*Q\s+", text):
+        return "Q"
 
-    # Question
-    if re.match(r"^Q\s+", text):
-     return "Q"
+    if re.match(r"^\s*A\s+", text):
+        return "A"
 
-    if re.match(r"^A\s+", text):
-       return "A"
+    if re.match(r"^\s*BY\s+", text):
+        return "ATTORNEY"
 
-    if re.match(r"^BY\s+", text):
-         return "ATTORNEY"
+    if re.match(r"^\s*THE\s+REPORTER\b", text, re.IGNORECASE):
+        return "REPORTER"
 
-    if re.match(r"^THE REPORTER\b", text):
-         return "REPORTER"
+    if re.match(r"^\s*THE\s+WITNESS\b", text, re.IGNORECASE):
+        return "WITNESS"
 
-    if re.match(r"^MR\.\s+", text):
-     return "ATTORNEY"
+    if re.match(r"^\s*MR\.\s+", text, re.IGNORECASE):
+        return "ATTORNEY"
 
-    if re.match(r"^MS\.\s+", text):
-     return "ATTORNEY"
+    if re.match(r"^\s*MS\.\s+", text, re.IGNORECASE):
+        return "ATTORNEY"
 
     return None
 
