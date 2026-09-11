@@ -151,6 +151,53 @@ TOPIC_SECTIONS = [
     ),
 ]
 
+TOPIC_RELATIONSHIPS = [
+    {
+        "topic_id": "T005",
+        "related_topic_ids": ["T019", "T020", "T021"],
+        "relationship": "reentry",
+        "reason": (
+            "Student loan servicing and servicer functions are revisited "
+            "later in the deposition."
+        ),
+    },
+    {
+        "topic_id": "T006",
+        "related_topic_ids": ["T019", "T020", "T021"],
+        "relationship": "reentry",
+        "reason": (
+            "The broader loan-servicing subject returns later when the "
+            "deposition addresses servicing, collection, and Vervent servicing."
+        ),
+    },
+    {
+        "topic_id": "T008",
+        "related_topic_ids": ["T016"],
+        "relationship": "reentry",
+        "reason": (
+            "ITT education practices are revisited later with a focus on "
+            "public evidence of misconduct."
+        ),
+    },
+    {
+        "topic_id": "T012",
+        "related_topic_ids": ["T020", "T021"],
+        "relationship": "reentry",
+        "reason": (
+            "The PEAKS/Vervent subject returns later in the deposition "
+            "during discussion of enforcement and servicing."
+        ),
+    },
+    {
+        "topic_id": "T013",
+        "related_topic_ids": ["T021"],
+        "relationship": "reentry",
+        "reason": (
+            "PEAKS enforceability is revisited later when discussing "
+            "enforceability timing and Vervent servicing."
+        ),
+    },
+]
 
 # ---------------------------------------------------------------------------
 # Utility functions
@@ -399,72 +446,88 @@ def build_topic(
     }
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# 
+# 
+# -----
 # Build complete Topic Index
 # ---------------------------------------------------------------------------
-
-def build_topic_index(
-    utterances: List[Dict[str, Any]],
-    transcript: List[Dict[str, Any]],
-) -> List[Dict[str, Any]]:
-    """
-    Build the complete chronological Topic Index.
-
-    The transcript is required so that source-line IDs can be resolved
-    to exact PDF page, transcript page, line, and text information.
-    """
-
-    # Lookup for validating topic boundary utterance IDs.
+def build_topic_index(utterances, transcript):
     utterance_lookup = build_utterance_lookup(utterances)
-
-    # Lookup for provenance.
     transcript_lookup = {
         record["id"]: record
         for record in transcript
         if "id" in record
     }
 
+    relationship_lookup = {}
+
+    for relationship in TOPIC_RELATIONSHIPS:
+        topic_id = relationship["topic_id"]
+
+        relationship_lookup[topic_id] = relationship
+
+        for related_id in relationship["related_topic_ids"]:
+            relationship_lookup.setdefault(
+                related_id,
+                {
+                    "topic_id": related_id,
+                    "related_topic_ids": [],
+                    "relationship": relationship["relationship"],
+                    "reason": relationship["reason"],
+                }
+            )
+
+            if topic_id not in relationship_lookup[related_id]["related_topic_ids"]:
+                relationship_lookup[related_id]["related_topic_ids"].append(
+                    topic_id
+                )
+
     topics = []
 
     for topic_id, label, start_id, end_id in TOPIC_SECTIONS:
 
-        # ---------------------------------------------------------------
-        # Check start utterance
-        # ---------------------------------------------------------------
-
         if start_id not in utterance_lookup:
             raise ValueError(
-                f"{topic_id}: start utterance "
-                f"{start_id} not found"
+                f"{topic_id}: start utterance {start_id} not found"
             )
-
-        # ---------------------------------------------------------------
-        # Check end utterance
-        # ---------------------------------------------------------------
 
         if end_id not in utterance_lookup:
             raise ValueError(
-                f"{topic_id}: end utterance "
-                f"{end_id} not found"
+                f"{topic_id}: end utterance {end_id} not found"
             )
 
-        # ---------------------------------------------------------------
-        # Build topic
-        # ---------------------------------------------------------------
-
         topic = build_topic(
-            topic_id=topic_id,
-            label=label,
-            start_id=start_id,
-            end_id=end_id,
-            utterances=utterances,
-            transcript_lookup=transcript_lookup,
+            topic_id,
+            label,
+            start_id,
+            end_id,
+            utterances,
+            transcript_lookup
         )
+
+        relationship = relationship_lookup.get(topic_id)
+
+        if relationship:
+            topic["related_topics"] = relationship[
+                "related_topic_ids"
+            ]
+
+            topic["relationship"] = relationship[
+                "relationship"
+            ]
+
+            topic["relationship_reason"] = relationship[
+                "reason"
+            ]
+        else:
+            topic["related_topics"] = []
+            topic["relationship"] = None
+            topic["relationship_reason"] = None
 
         topics.append(topic)
 
     return topics
-
 
 # ---------------------------------------------------------------------------
 # Validation
@@ -510,6 +573,16 @@ def validate_topic_index(
         topic.get("topic_id")
         for topic in topics
     ]
+    topic_id_set = set(actual_ids)
+
+    for topic in topics:
+        topic_id = topic.get("topic_id")
+
+        for related_id in topic.get("related_topics", []):
+            if related_id not in topic_id_set:
+                problems.append(
+                    f"{topic_id}: related topic {related_id} does not exist."
+                )
 
     if actual_ids != expected_ids:
         problems.append(

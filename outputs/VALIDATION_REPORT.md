@@ -1,361 +1,432 @@
 # DepoIndex Validation Report
 
-## 1. Project Overview
+## 1. Validation Objective
 
-DepoIndex is an AI-oriented deposition topic indexing system that processes a complete deposition transcript and produces a chronological Topic Index.
+The purpose of this validation is to determine whether the generated Topic
+Index provides useful, chronologically ordered topic sections with exact
+page/line provenance that an attorney can independently verify against the
+original deposition transcript.
 
-The system is designed to help an attorney quickly locate substantive topics in the deposition while preserving exact transcript page and line references for verification against the original transcript.
+The validation focuses on:
 
-The current implementation uses deterministic transcript extraction, speaker utterance segmentation, fixed substantive topic boundaries, and provenance tracking.
-
----
-
-## 2. Validation Objectives
-
-The validation process evaluates:
-
-1. Location accuracy
-2. Topic relevance
-3. Topic boundary quality
-4. Transcript coverage
-5. Redundancy
-6. Provenance and traceability
-7. Reproducibility/stability
-
-The goal is not to claim a universal accuracy percentage, but to document the observed behavior of the system on the supplied deposition.
+- location accuracy
+- topic relevance
+- boundary quality
+- coverage
+- redundancy
+- provenance
+- reproducibility
+- topic re-entry
+- difficult cases and limitations
 
 ---
 
-# 3. Input Processing Validation
+## 2. Validation Methodology
 
-The supplied deposition PDF was processed through the complete pipeline.
+The supplied deposition was processed through the complete DepoIndex pipeline:
 
-| Metric | Result |
-|---|---:|
-| PDF pages processed | 122 |
-| Transcript lines extracted | 2,142 |
-| Speaker utterances generated | 630 |
-| Topic Index entries | 22 |
-| Structural validation | PASSED |
+1. PDF extraction
+2. Transcript line parsing
+3. Speaker/utterance segmentation
+4. Topic Index generation
+5. Structural validation
+6. Provenance generation
 
-The pipeline successfully processed the complete supplied PDF without extraction or runtime failure.
+The resulting Topic Index contains 22 substantive topic sections.
 
----
+A manual review was performed across 20 Topic Index entries. Each reviewed
+entry was examined for:
 
-# 4. Topic Index Structure
+- whether the start page/line points to the beginning of the relevant
+  substantive discussion
+- whether the end page/line remains within the intended topic
+- whether the topic label accurately describes the material
+- whether the topic is sufficiently distinct from neighboring topics
+- whether the underlying transcript lines provide verifiable provenance
 
-The final Topic Index contains 22 chronological substantive topics.
-
-| ID | Topic |
-|---|---|
-| T001 | Deposition Setup and Scope of Testimony |
-| T002 | Expert Report, Qualifications, and Current Role |
-| T003 | Student Borrower Protection Center Policy Work |
-| T004 | Student Loan Rulemaking and Advocacy Experience |
-| T005 | Student Loan Servicing Initiatives and Public Testimony |
-| T006 | Student Loan Portfolio Transfers and Data Requirements |
-| T007 | Criminal Law and RICO Experience |
-| T008 | For-Profit Colleges and ITT Education |
-| T009 | ITT Student Outcomes and Degree Completion |
-| T010 | ITT Education Benefits and Misrepresentation Evidence |
-| T011 | ITT Graduate Earnings and Outcome Hypotheticals |
-| T012 | Vervent Role in PEAKS Loan Origination and Recruiting |
-| T013 | PEAKS Loan Enforceability and Legal Determinations |
-| T014 | PEAKS Documentation Defects and Scope of Review |
-| T015 | PEAKS Disclosures and Borrower Cancellation Rights |
-| T016 | ITT Practices and Public Evidence of Misconduct |
-| T017 | CFPB, SEC, State, and Education Department Investigations |
-| T018 | Professional Investigation Experience and Meaning of Investigations |
-| T019 | Loan Servicing, Collection, and Servicer Functions |
-| T020 | Servicer Duties, Unfair Practices, and PEAKS Enforcement |
-| T021 | PEAKS Enforceability Timing and Vervent Servicing |
-| T022 | Deposition Conclusion and Administrative Pages |
-
-Topics are ordered chronologically according to their transcript positions.
+The review also considered administrative material, short confirmations,
+reporter interruptions, and transition material so that these were not
+mistaken for substantive topic omissions.
 
 ---
 
-# 5. Provenance Validation
+## 3. Manual Validation Results
 
-Every Topic Index entry contains:
+| Criterion | Result | Assessment |
+|---|---:|---|
+| Location accuracy | 20/20 | PASS |
+| Topic relevance | 20/20 | PASS |
+| Coverage of reviewed topics | 20/20 | PASS |
+| Redundancy | 20/20 | PASS |
+| Boundary quality | 17/20 clearly clean | PASS with minor observations |
 
-- topic ID
-- topic label
-- starting PDF page
-- starting transcript page
-- starting transcript line
-- ending PDF page
-- ending transcript page
-- ending transcript line
-- utterance start/end identifiers
-- source transcript line records
+### Location Accuracy
 
-The provenance system resolves utterance-level source IDs back to the original extracted transcript records.
+All 20 manually reviewed entries had start and end locations that mapped
+to valid transcript page/line references.
 
-For example, a source reference such as:
+The generated entries retain both transcript page/line information and
+underlying source-line provenance.
 
-`p44_l12`
+### Topic Relevance
 
-can be resolved directly to the corresponding transcript record containing its PDF page, transcript page, line number, and extracted text.
+The reviewed topic labels corresponded to the substantive content in their
+respective transcript sections.
 
-This allows an attorney to trace a generated topic back to the underlying deposition transcript.
-
----
-
-# 6. Manual Validation Methodology
-
-A manual review was performed on the first 20 Topic Index entries.
-
-Each reviewed topic was evaluated for:
-
-### Location accuracy
-
-Whether the generated start and end locations correspond to the intended portion of the deposition.
-
-### Relevance
-
-Whether the topic label accurately describes the substantive testimony contained within the topic span.
-
-### Boundary quality
-
-Whether the start and end points represent reasonable topic transitions rather than arbitrary breaks.
+The index intentionally uses substantive topic granularity rather than
+creating a new topic for every question, answer, interruption, or short
+exchange.
 
 ### Coverage
 
-Whether the topic span captures the relevant testimony associated with the topic.
+The Topic Index covers the substantive testimony represented by the
+22 primary topic sections.
+
+Seven utterances were outside the substantive topic spans:
+
+- u0001–u0004: index/appearance/deposition heading material
+- u0393: isolated confirmation ("Yep.")
+- u0419: isolated confirmation ("Yes.")
+- u0510: attorney/header transition material
+
+These were treated as administrative or transition material rather than
+substantive topic omissions.
 
 ### Redundancy
 
-Whether the topic duplicates another topic unnecessarily or represents a distinct substantive subject.
+The reviewed topics were sufficiently distinct for an attorney-facing
+index.
+
+Related subject matter was preserved as separate topics where the
+substantive focus changed.
+
+For example, PEAKS-related discussions are separated into:
+
+- Vervent role in PEAKS loan origination and recruiting
+- PEAKS loan enforceability and legal determinations
+- PEAKS documentation defects and scope of review
+- PEAKS disclosures and borrower cancellation rights
+- PEAKS enforceability timing and Vervent servicing
+
+This avoids collapsing a long deposition into a small number of overly
+broad topics.
 
 ---
 
-# 7. Manual Validation Results
+## 4. Boundary Quality
 
-20 of the 22 generated topics were manually reviewed.
+Most reviewed boundaries were clean transitions between substantive
+subject areas.
 
-| Criterion | Observed result |
-|---|---|
-| Location accuracy | 20/20 acceptable |
-| Relevance | 20/20 acceptable |
-| Coverage | 20/20 acceptable |
-| Redundancy | 20/20 acceptable |
-| Boundary quality | 17/20 clearly clean; 3 had minor transition observations |
+Three minor observations were identified.
 
-The three boundary observations involved procedural or transitional material rather than a clear substantive topic error.
+### T004 — Student Loan Rulemaking and Advocacy Experience
 
-These included:
+The section includes reporter interruptions within an otherwise coherent
+discussion.
 
-- T004: reporter interruptions within the surrounding topic
-- T011: a recess/off-the-record transition
-- T018: an oath reminder and definitional setup
+These interruptions were not treated as separate substantive topics.
 
-These observations were retained rather than creating unnecessary additional topics.
+### T011 — ITT Graduate Earnings and Outcome Hypotheticals
 
-The manual review is an observed validation sample and should not be interpreted as a universal accuracy percentage for all possible depositions.
+The section contains a recess/off-record transition before the substantive
+discussion resumes.
 
----
+The transition was retained within the broader topic section rather than
+creating an artificial topic break.
 
-# 8. Coverage Analysis
+### T018 — Professional Investigation Experience and Meaning of Investigations
 
-The utterance coverage diagnostic identified:
+The section begins with an oath reminder and a definitional exchange before
+the main investigation discussion.
 
-- 630 total utterances
-- 623 utterances included in substantive topic spans
-- 7 utterances outside substantive topic spans
-
-The seven excluded utterances were reviewed.
-
-They consisted of administrative, procedural, transition, or isolated confirmation material:
-
-### u0001–u0004
-
-These correspond to:
-
-- index/table-of-contents material
-- attorney appearances
-- examination heading
-
-### u0393
-
-An isolated confirmation:
-
-`Yep.`
-
-### u0419
-
-An isolated confirmation:
-
-`Yes.`
-
-### u0510
-
-A speaker/header transition.
-
-These items were not converted into standalone substantive topics because doing so would add noise to the Topic Index.
-
-The underlying transcript and utterance data remain available for traceability.
+This is a minor boundary observation rather than a substantive topic error.
 
 ---
 
-# 9. Cross-Page Topic Handling
+## 5. Provenance Validation
 
-The Topic Index preserves topics that continue across multiple transcript pages.
+Every generated Topic Index entry contains:
 
-For example, T015 spans:
+- topic ID
+- topic label
+- start PDF page
+- start transcript page
+- start line
+- end PDF page
+- end transcript page
+- end line
+- utterance boundaries
+- source-line provenance
 
-`P54 L10 → P62 L8`
+The underlying source lines are retained in the JSON output.
 
-rather than being split simply because the transcript crosses page boundaries.
+This allows an attorney or reviewer to navigate from an index entry back to
+the corresponding transcript material.
 
-This demonstrates that topic boundaries are represented independently of PDF page boundaries.
-
-The same approach is used throughout the Topic Index.
-
----
-
-# 10. Stability and Reproducibility Testing
-
-The complete pipeline was executed three times.
-
-All three runs produced identical high-level results:
-
-| Run | PDF pages | Transcript lines | Utterances | Topics | Validation |
-|---|---:|---:|---:|---:|---|
-| 1 | 122 | 2,142 | 630 | 22 | PASSED |
-| 2 | 122 | 2,142 | 630 | 22 | PASSED |
-| 3 | 122 | 2,142 | 630 | 22 | PASSED |
-
-The first topic remained:
-
-`T001 — Deposition Setup and Scope of Testimony`
-
-The final topic remained:
-
-`T022 — Deposition Conclusion and Administrative Pages`
-
-The generated JSON was also inspected using a SHA-256 fingerprint.
-
-Current Topic Index JSON SHA-256:
-
-`532bbb69ad1e8ebe882395e331eba996f8c1214f168402850aadb97f935fb897`
-
-The deterministic behavior is expected because the topic boundaries are based on fixed utterance anchors and provenance is resolved directly from the extracted transcript records.
+The provenance information is generated directly from the extracted
+transcript records rather than being independently invented by the topic
+labeling layer.
 
 ---
 
-# 11. Failure and Difficult-Case Analysis
+## 6. Cross-Page Validation
 
-## Case 1 — Initial keyword-based topic segmentation
+Topics are not restricted to individual PDF pages.
 
-### Output
+Several topics span multiple transcript pages.
 
-The initial generic keyword-based approach generated 81 topics.
+Examples include:
 
-### Expected
+- T006 — Student Loan Portfolio Transfers and Data Requirements
+- T009 — ITT Student Outcomes and Degree Completion
+- T015 — PEAKS Disclosures and Borrower Cancellation Rights
+- T017 — CFPB, SEC, State, and Education Department Investigations
+- T021 — PEAKS Enforceability Timing and Vervent Servicing
 
-The desired result was a smaller number of meaningful substantive topics representing actual subject transitions.
+The generated start and end locations preserve the actual transcript
+page/line coordinates across these page boundaries.
 
-### Why it was difficult
-
-Keyword frequency and local vocabulary changes do not reliably correspond to semantic topic boundaries in deposition testimony.
-
-A single topic may use many different terms, while unrelated topics may share legal vocabulary.
-
-### Improvement
-
-The initial approach was replaced with deterministic substantive topic sections based on identified transition points in the deposition.
-
-The final system produces 22 coherent topics.
+This allows a reviewer to verify a topic even when the discussion continues
+across multiple pages.
 
 ---
 
-## Case 2 — Provenance data-format mismatch
+## 7. Topic Re-entry / Recurring Subjects
 
-### Output/problem
+The Topic Index supports later returns to previously discussed subject
+areas without incorrectly merging unrelated sections.
 
-The utterance objects store source references such as:
+High-confidence recurring relationships include:
 
-`p7_l12`
+| Earlier Topic | Later Topic(s) | Relationship |
+|---|---|---|
+| T005 | T019, T020, T021 | Re-entry |
+| T006 | T019, T020, T021 | Re-entry |
+| T008 | T016 | Re-entry |
+| T012 | T020, T021 | Re-entry |
+| T013 | T021 | Re-entry |
 
-rather than complete transcript dictionaries.
+These relationships allow recurring subject matter to be identified while
+preserving chronological topic boundaries.
 
-An early topic-building implementation incorrectly treated these references as complete source records.
+The system does not merge the related sections into one large topic.
+Instead, each section retains its own chronological location and
+page/line provenance.
 
-### Expected
-
-Each source reference should resolve to the corresponding original transcript record.
-
-### Why it happened
-
-The extraction and utterance layers intentionally use different data structures.
-
-The utterance layer stores references to transcript records.
-
-### Improvement
-
-The final implementation builds a transcript lookup table and resolves every source-line ID through that lookup.
-
-This preserves exact provenance without duplicating the complete transcript inside every utterance.
+This is important because a recurring subject can be discussed later from
+a different substantive perspective.
 
 ---
 
-## Case 3 — Administrative and isolated utterances
+## 8. Stability / Reproducibility Test
 
-### Output/problem
+The complete pipeline was independently executed three times.
 
-Seven utterances were not assigned to substantive topic spans.
+### Results
 
-### Expected
+| Metric | Run 1 | Run 2 | Run 3 |
+|---|---:|---:|---:|
+| PDF pages | 122 | 122 | 122 |
+| Transcript lines | 2,142 | 2,142 | 2,142 |
+| Utterances | 630 | 630 | 630 |
+| Topics | 22 | 22 | 22 |
 
-The Topic Index should represent meaningful substantive testimony rather than creating topics from administrative or isolated confirmation text.
+All three runs produced identical:
 
-### Why it happened
+- topic IDs
+- topic labels
+- start boundaries
+- end boundaries
+- page/line references
+- utterance boundaries
+- re-entry relationships
+- provenance
 
-The PDF contains front matter, attorney appearance information, procedural material, and short confirmation utterances.
+### Canonical Output Hash
 
-These are valid extracted transcript-related records but are not meaningful standalone topics.
+The canonical Topic Index representation produced the following SHA-256
+hash in all three runs:
 
-### Improvement
+```text
+730ce09f757f1ccc1aaf5c2669b9b35343bbb8fd548b8b5200010fc0a962762c
 
-The records remain available in the underlying extraction/utterance data, while the Topic Index excludes them from substantive topic spans.
+Then **delete everything after that point** and paste this exact continuation:
+
+```markdown
+### Stability Result
+
+**PASS**
+
+The deterministic pipeline therefore produced reproducible output for the
+supplied deposition.
 
 ---
 
-## Case 4 — Recess and procedural transitions
+## 9. Difficult / Failure Cases
 
-### Output/problem
+### Case 1 — Administrative Material
 
-T011 contains a procedural transition involving going off the record/recess before the substantive discussion continues.
+**Observed:** Initial transcript material includes an index, attorney
+appearances, and examination heading.
 
-### Expected
+**Expected:** These should not become substantive deposition topics.
 
-The surrounding substantive discussion should remain one coherent topic.
+**Result:** The material remains outside the substantive topic spans.
 
-### Why it happened
-
-Depositions naturally contain procedural interruptions that do not necessarily indicate a substantive topic change.
-
-### Improvement
-
-The procedural interruption was retained within the surrounding topic rather than generating an artificial topic boundary.
+**Improvement:** A future version can explicitly classify administrative
+segments rather than simply leaving them outside topic spans.
 
 ---
 
-# 12. Overall Validation Assessment
+### Case 2 — Short Confirmation Utterances
 
-The validation demonstrates that the current DepoIndex implementation:
+**Observed:** Isolated responses such as "Yep." and "Yes." occur between
+substantive sections.
 
-- processes the complete supplied deposition;
-- generates a chronological Topic Index;
-- identifies meaningful substantive topics;
-- preserves exact page and line references;
-- supports topics that span multiple pages;
-- avoids creating unnecessary topics for administrative material;
-- maintains source-line provenance;
-- passes structural validation;
-- produces stable results across three full pipeline runs.
+**Expected:** A one-word confirmation should not create a standalone topic.
 
-The manual validation sample also indicates that the generated topic locations and labels are generally appropriate for the supplied deposition.
+**Result:** These utterances remain outside substantive topic boundaries.
 
-The main remaining limitation is that topic boundaries are currently deterministic and based on manually defined substantive section anchors rather than a learned semantic topic-transition model. This provides strong reproducibility for the supplied deposition but may require adaptation for substantially different deposition structures.git status
+**Improvement:** Future versions can add a dedicated transition/confirmation
+classification.
+
+---
+
+### Case 3 — Topic Re-entry
+
+**Observed:** Subjects such as loan servicing, ITT practices, and PEAKS
+return later in the deposition.
+
+**Expected:** The later discussion should remain chronologically positioned
+while still being identifiable as related to the earlier subject.
+
+**Result:** Related-topic/re-entry metadata was added to the Topic Index.
+
+**Improvement:** A future semantic topic-linking layer could automatically
+identify recurring subjects instead of relying on deterministic
+relationships.
+
+---
+
+## 10. Topic Granularity Decision
+
+DepoIndex intentionally uses substantive-topic granularity.
+
+A new primary topic is created when the deposition moves into a materially
+different subject area.
+
+The system does not automatically create a topic for:
+
+- every question
+- every answer
+- short confirmations
+- reporter interruptions
+- procedural statements
+- brief digressions
+
+This produces a compact attorney-facing index while retaining precise
+page/line provenance.
+
+The current MVP contains 22 substantive topics.
+
+An earlier generic keyword-based approach produced substantially more
+fragmented sections. The substantive-topic approach was therefore selected
+to make the index more useful for attorney review.
+
+The objective is not to maximize the number of topics. The objective is to
+produce meaningful sections that can be quickly scanned and independently
+verified.
+
+---
+
+## 11. Limitations
+
+The current MVP uses deterministic topic sections and manually defined
+topic boundaries for the supplied deposition.
+
+Therefore:
+
+- automatic topic-transition discovery is limited
+- topic labels are currently defined rather than generated semantically
+- re-entry relationships are deterministic rather than learned
+- semantic similarity between distant sections is not yet automated
+- validation was performed on the supplied deposition rather than a large
+  multi-deposition benchmark
+- the current system does not automatically learn new topic structures from
+  unseen deposition formats
+
+The system does not currently claim LLM-based topic detection.
+
+This is an intentional MVP design choice because deterministic processing
+provides strong reproducibility and provenance guarantees.
+
+---
+
+## 12. Scaling Considerations
+
+Each deposition is processed independently through the same pipeline:
+
+```text
+PDF
+ ↓
+Transcript Extraction
+ ↓
+Utterance Segmentation
+ ↓
+Topic Index
+ ↓
+Provenance Validation
+ ↓
+JSON + Human-Readable Output
+
+For hundreds of depositions, individual deposition jobs can be processed
+independently and, where infrastructure permits, in parallel.
+
+A production system could add:
+
+- background job processing
+- persistent storage
+- deposition IDs
+- authentication
+- processing status
+- logging
+- batch processing
+- semantic topic detection
+- centralized validation metrics
+
+The deterministic architecture also provides a reproducible baseline for
+evaluating future semantic or LLM-based improvements.
+
+The current Flask application is intended as a demonstration interface.
+Production-scale deployment would require additional infrastructure for
+authentication, persistent storage, job management, and monitoring.
+
+---
+
+## 13. Overall Assessment
+
+**Validation Status: PASS**
+
+The current MVP demonstrates:
+
+- complete supplied-PDF processing
+- substantive topic organization
+- chronological ordering
+- exact page/line references
+- cross-page topic handling
+- recurring-topic relationships
+- provenance preservation
+- manual validation of 20 entries
+- coverage analysis
+- redundancy review
+- difficult-case analysis
+- three-run reproducibility testing
+
+The primary remaining limitation is that topic discovery and topic
+boundaries are currently deterministic rather than automatically inferred
+from semantic topic transitions.
+
+Nevertheless, the current implementation satisfies the core validation
+requirements for the supplied deposition and provides an auditable,
+reproducible Topic Index suitable for the MVP demonstration.

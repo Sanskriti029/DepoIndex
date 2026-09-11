@@ -638,7 +638,10 @@
           "text": "identification.)"
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T002",
@@ -845,7 +848,10 @@
           "text": "national economy."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T003",
@@ -1381,7 +1387,10 @@
           "text": "the Department of Education's income (unintelligible) --"
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T004",
@@ -1693,7 +1702,10 @@
           "text": "BY MR. PURCELL:"
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T005",
@@ -2236,7 +2248,14 @@
           "text": "my capacity at the National Consumer Law Center."
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T019",
+      "T020",
+      "T021"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "Student loan servicing and servicer functions are revisited later in the deposition."
   },
   {
     "topic_id": "T006",
@@ -3129,7 +3148,14 @@
           "text": "violated."
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T019",
+      "T020",
+      "T021"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "The broader loan-servicing subject returns later when the deposition addresses servicing, collection, and Vervent servicing."
   },
   {
     "topic_id": "T007",
@@ -3588,7 +3614,10 @@
           "text": "A    That just is what it is."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T008",
@@ -4159,7 +4188,12 @@
           "text": "ITT."
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T016"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "ITT education practices are revisited later with a focus on public evidence of misconduct."
   },
   {
     "topic_id": "T009",
@@ -5094,7 +5128,10 @@
           "text": "the practices of the institution."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T010",
@@ -5420,7 +5457,10 @@
           "text": "regards to ITT."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T011",
@@ -6327,7 +6367,10 @@
           "text": "that is not the typical experience of an ITT graduate."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T012",
@@ -6765,7 +6808,13 @@
           "text": "A    No, they would not."
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T020",
+      "T021"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "The PEAKS/Vervent subject returns later in the deposition during discussion of enforcement and servicing."
   },
   {
     "topic_id": "T013",
@@ -7784,7 +7833,12 @@
           "text": "PEAKS loans were invalid and unenforceable at some point?"
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T021"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "PEAKS enforceability is revisited later when discussing enforceability timing and Vervent servicing."
   },
   {
     "topic_id": "T014",
@@ -8551,7 +8605,10 @@
           "text": "question."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T015",
@@ -9969,7 +10026,10 @@
           "text": "Q    Okay.  On page 11 of your report, at line 6 --"
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T016",
@@ -10799,7 +10859,12 @@
           "text": "several investigations."
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T008"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "ITT education practices are revisited later with a focus on public evidence of misconduct."
   },
   {
     "topic_id": "T017",
@@ -12462,7 +12527,10 @@
           "text": "record at 3:23 P.M."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T018",
@@ -13138,7 +13206,10 @@
           "text": "loans trust."
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   },
   {
     "topic_id": "T019",
@@ -13380,7 +13451,13 @@
           "text": "loan holder."
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T005",
+      "T006"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "Student loan servicing and servicer functions are revisited later in the deposition."
   },
   {
     "topic_id": "T020",
@@ -13559,7 +13636,14 @@
           "text": "BY MR. PURCELL:"
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T005",
+      "T006",
+      "T012"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "Student loan servicing and servicer functions are revisited later in the deposition."
   },
   {
     "topic_id": "T021",
@@ -14655,7 +14739,15 @@
           "text": "THE REPORTER:  Okay.  Can we go off the record?"
         }
       ]
-    }
+    },
+    "related_topics": [
+      "T005",
+      "T006",
+      "T012",
+      "T013"
+    ],
+    "relationship": "reentry",
+    "relationship_reason": "Student loan servicing and servicer functions are revisited later in the deposition."
   },
   {
     "topic_id": "T022",
@@ -15352,6 +15444,9 @@
           "text": "WITNESS                            Date"
         }
       ]
-    }
+    },
+    "related_topics": [],
+    "relationship": null,
+    "relationship_reason": null
   }
 ]
