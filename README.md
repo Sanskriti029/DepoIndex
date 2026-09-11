@@ -281,11 +281,11 @@ requirements.txt
 ## 1. Clone the Repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/Sanskriti029/DepoIndex.git
 cd DepoIndex
 ```
 
-Replace `<YOUR_GITHUB_REPOSITORY_URL>` with your actual GitHub repository URL.
+
 
 ---
 
