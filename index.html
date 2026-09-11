@@ -1,535 +1,1441 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>DepoIndex — Deposition Search</title>
 
     <style>
-        * {
-            box-sizing: border-box;
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #f5f7fb;
+        color: #172033;
+      }
+
+      /* ---------- HEADER ---------- */
+
+      header {
+        background: linear-gradient(135deg, #111827, #1e3a5f);
+        color: white;
+        padding: 42px 20px;
+        text-align: center;
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .logo-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #2563eb;
+        border-radius: 10px;
+        font-size: 22px;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 36px;
+        letter-spacing: -0.5px;
+      }
+
+      header p {
+        margin: 10px 0 0;
+        color: #cbd5e1;
+        font-size: 16px;
+      }
+
+      /* ---------- MAIN ---------- */
+
+      .container {
+        max-width: 1050px;
+        margin: 35px auto;
+        padding: 0 20px;
+      }
+
+      /* ---------- SEARCH ---------- */
+
+      .search-section {
+        background: white;
+        padding: 24px;
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07);
+        border: 1px solid #e5e7eb;
+      }
+
+      .search-title {
+        margin: 0 0 5px;
+        font-size: 19px;
+      }
+
+      .search-subtitle {
+        margin: 0 0 18px;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .search-box {
+        display: flex;
+        gap: 10px;
+      }
+
+      #query {
+        flex: 1;
+        padding: 14px 16px;
+        font-size: 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        outline: none;
+        transition: 0.2s;
+      }
+
+      #query:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+
+      button {
+        padding: 14px 26px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 9px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .examples {
+        margin-top: 13px;
+        color: #64748b;
+        font-size: 13px;
+      }
+
+      .examples {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+
+      .examples-label {
+        color: #64748b;
+        font-size: 13px;
+        margin-right: 2px;
+      }
+
+      .example-chip {
+        width: auto;
+        padding: 6px 10px;
+        margin: 0;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.18s;
+      }
+
+      .example-chip:hover {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+        transform: none;
+      }
+
+      .search-note {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+        margin-top: 14px;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .search-note span {
+        color: #2563eb;
+        font-weight: 700;
+      }
+
+      /* ---------- STATUS ---------- */
+
+      .results-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin: 24px 2px 15px;
+      }
+
+      #status {
+        margin: 0;
+        color: #475569;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .result-limit {
+        color: #94a3b8;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .loading-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin-right: 5px;
+        border-radius: 50%;
+        background: #2563eb;
+        animation: pulse 1s infinite ease-in-out;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.35;
+          transform: scale(0.85);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* ---------- RESULTS ---------- */
+
+      .result {
+        background: white;
+        margin-bottom: 16px;
+        padding: 22px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        transition: 0.2s;
+      }
+
+      .result:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      }
+
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .result-number {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 5px;
+      }
+
+      .speaker-row {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 7px;
+      }
+
+      .speaker {
+        font-weight: 700;
+        font-size: 17px;
+        color: #1e293b;
+      }
+
+      .speaker-badge {
+        padding: 4px 9px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .location {
+        color: #64748b;
+        font-size: 13px;
+      }
+
+      .score {
+        flex-shrink: 0;
+        background: #ecfdf5;
+        color: #047857;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      /* ---------- MATCHED TERMS ---------- */
+
+      .matched {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 15px;
+      }
+
+      .matched-label {
+        color: #64748b;
+        font-size: 12px;
+        padding: 5px 0;
+      }
+
+      .keyword {
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 4px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      /* ---------- TEXT ---------- */
+
+      .text {
+        line-height: 1.7;
+        font-size: 15px;
+        color: #334155;
+        white-space: pre-wrap;
+      }
+
+      .utterance {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid #eef2f7;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      /* ---------- EMPTY / ERROR ---------- */
+
+      .empty {
+        text-align: center;
+        padding: 50px 20px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        color: #64748b;
+      }
+
+      .empty-icon {
+        font-size: 35px;
+        margin-bottom: 10px;
+      }
+
+      /* ---------- FOOTER ---------- */
+
+      footer {
+        text-align: center;
+        padding: 30px 20px;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      /* ---------- TOPIC INDEX ---------- */
+
+      .topic-section {
+        margin-bottom: 28px;
+      }
+
+      .topic-header {
+        background: white;
+        padding: 24px;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07);
+        margin-bottom: 16px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .topic-header h2 {
+        margin: 0 0 6px;
+        font-size: 21px;
+      }
+
+      .topic-header p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .topic-stats {
+        flex-shrink: 0;
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 9px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .topic-card {
+        background: white;
+        margin-bottom: 12px;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        transition: 0.2s;
+      }
+
+      .topic-card:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      }
+
+      .topic-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 10px;
+      }
+
+      .topic-id {
+        display: inline-block;
+        background: #2563eb;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 7px;
+      }
+
+      .topic-title {
+        margin: 0;
+        font-size: 17px;
+        color: #1e293b;
+      }
+
+      .topic-location {
+        color: #475569;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .topic-excerpt {
+        margin: 12px 0;
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .topic-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .topic-badge {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .topic-related {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid #eef2f7;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .topic-related strong {
+        color: #1d4ed8;
+      }
+
+      .topic-loading {
+        background: white;
+        padding: 35px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        color: #64748b;
+      }
+      /* ---------- SOURCE VERIFICATION ---------- */
+
+      .view-source-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        margin-top: 16px;
+        padding: 9px 13px;
+
+        border: 1px solid #16a085;
+        border-radius: 7px;
+
+        background: white;
+        color: #0f766e;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        cursor: pointer;
+
+        transition: all 0.18s ease;
+      }
+
+      .view-source-btn::before {
+        content: "↗";
+        font-size: 13px;
+      }
+
+      .view-source-btn:hover {
+        background: #16a085;
+        color: white;
+
+        box-shadow: 0 4px 10px rgba(22, 160, 133, 0.2);
+      }
+      .source-panel {
+        margin-top: 16px;
+        padding-top: 16px;
+
+        border-top: 1px solid #e5e7eb;
+
+        animation: sourceOpen 0.18s ease;
+      }
+
+      @keyframes sourceOpen {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
         }
 
-        body {
-            margin: 0;
-            font-family: Inter, Arial, sans-serif;
-            background: #f5f7fb;
-            color: #172033;
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .source-header {
+        background: #f8fafc;
+
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+
+        padding: 13px 15px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .source-header strong {
+        color: #0f172a;
+      }
+
+      .source-range {
+        padding: 5px 8px;
+
+        background: #ecfdf5;
+        border-radius: 5px;
+
+        color: #047857;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .source-content {
+        max-height: 520px;
+        overflow-y: auto;
+
+        margin-top: 8px;
+
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+
+        background: #fcfcfc;
+      }
+
+      .source-utterance {
+        display: grid;
+        grid-template-columns: 85px 75px 1fr 50px;
+
+        gap: 12px;
+
+        padding: 13px 15px;
+
+        border-bottom: 1px solid #eef2f7;
+
+        transition: background 0.15s ease;
+      }
+
+      .source-utterance:hover {
+        background: #f8fafc;
+      }
+
+      .source-location {
+        color: #0f766e;
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1.5;
+      }
+
+      .source-speaker {
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 800;
+      }
+
+      .source-text {
+        color: #334155;
+
+        font-family: "Segoe UI", Arial, sans-serif;
+
+        font-size: 12px;
+        line-height: 1.65;
+      }
+
+      .source-id {
+        color: #94a3b8;
+        font-family: monospace;
+        font-size: 9px;
+        text-align: right;
+      }
+
+      .source-header {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .source-header strong {
+        color: #1e293b;
+        margin-right: 8px;
+      }
+
+      .source-header span {
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .source-range {
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .source-content {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fafafa;
+      }
+
+      .source-utterance {
+        display: grid;
+        grid-template-columns: 95px 85px 1fr 55px;
+        gap: 12px;
+        align-items: start;
+
+        padding: 12px 14px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .source-utterance:last-child {
+        border-bottom: none;
+      }
+
+      .source-location {
+        color: #2563eb;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.5;
+      }
+
+      .source-speaker {
+        color: #475569;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .source-text {
+        color: #334155;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .source-id {
+        color: #94a3b8;
+        font-size: 10px;
+        text-align: right;
+      }
+
+      .source-loading,
+      .source-empty,
+      .source-error {
+        padding: 20px;
+        text-align: center;
+        color: #64748b;
+      }
+
+      .source-error {
+        color: #b91c1c;
+        background: #fef2f2;
+        border-radius: 8px;
+      }
+
+      .search-section {
+        margin-top: 28px;
+      }
+
+      .search-section > * {
+        position: relative;
+      }
+
+      .search-section h2 {
+        font-size: 20px;
+        color: #1e293b;
+      }
+
+      .search-section p {
+        color: #64748b;
+        font-size: 13px;
+      }
+      /* =========================================================
+   FINAL UI POLISH
+   ========================================================= */
+
+      .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 22px 0;
+        margin-bottom: 22px;
+      }
+
+      .brand-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #16a085;
+        color: white;
+
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+
+      .app-header h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .app-header p {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .header-badge {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+
+        padding: 7px 11px;
+        border-radius: 20px;
+
+        background: #ecfdf5;
+        border: 1px solid #d1fae5;
+
+        color: #047857;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #10b981;
+      }
+
+      /* ---------- HERO ---------- */
+
+      .hero-section {
+        background: linear-gradient(
+          135deg,
+          #0f766e 0%,
+          #16a085 55%,
+          #13856e 100%
+        );
+
+        border-radius: 18px;
+        padding: 42px 38px;
+        margin-bottom: 18px;
+
+        box-shadow: 0 12px 30px rgba(15, 118, 110, 0.18);
+      }
+
+      .hero-content {
+        max-width: 700px;
+      }
+
+      .hero-label {
+        display: inline-block;
+
+        padding: 5px 9px;
+        margin-bottom: 12px;
+
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 5px;
+
+        color: rgba(255, 255, 255, 0.85);
+
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+      }
+
+      .hero-section h2 {
+        margin: 0;
+
+        color: white;
+        font-size: 34px;
+        line-height: 1.15;
+        letter-spacing: -0.8px;
+      }
+
+      .hero-section h2 span {
+        opacity: 0.75;
+      }
+
+      .hero-section p {
+        max-width: 620px;
+
+        margin: 14px 0 0;
+
+        color: rgba(255, 255, 255, 0.85);
+
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      /* ---------- STATS ---------- */
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+
+        margin-bottom: 22px;
+      }
+
+      .stat-card {
+        background: white;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+
+        padding: 17px 18px;
+
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+      }
+
+      .stat-value {
+        color: #0f766e;
+
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .stat-label {
+        margin-top: 3px;
+
+        color: #64748b;
+
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      /* ---------- RESPONSIVE ---------- */
+
+      @media (max-width: 600px) {
+        .app-header {
+    padding: 15px 0;
+}
+
+.header-inner {
+    padding: 0 14px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.brand-text h1 {
+    font-size: 19px;
+}
+
+.brand-text p {
+    font-size: 11px;
+}
+
+.header-status {
+    display: none;
+}
+
+        .hero-section {
+          padding: 30px 23px;
+          border-radius: 14px;
         }
 
-        /* ---------- HEADER ---------- */
+        .hero-section h2 {
+          font-size: 27px;
+        }
 
+        .hero-section p {
+          font-size: 13px;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stat-card {
+          padding: 14px;
+        }
+
+        .topic-card {
+          padding: 17px;
+        }
+
+        .topic-card-header {
+          flex-direction: column;
+        }
+
+        .topic-location {
+          white-space: normal;
+        }
+
+        .source-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .source-utterance {
+          grid-template-columns: 1fr;
+          gap: 5px;
+        }
+
+        .source-id {
+          text-align: left;
+        }
         header {
-            background: linear-gradient(135deg, #111827, #1e3a5f);
-            color: white;
-            padding: 42px 20px;
-            text-align: center;
-        }
-
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .logo-icon {
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #2563eb;
-            border-radius: 10px;
-            font-size: 22px;
+          padding: 32px 15px;
         }
 
         header h1 {
-            margin: 0;
-            font-size: 36px;
-            letter-spacing: -0.5px;
+          font-size: 30px;
         }
-
-        header p {
-            margin: 10px 0 0;
-            color: #cbd5e1;
-            font-size: 16px;
-        }
-
-        /* ---------- MAIN ---------- */
 
         .container {
-            max-width: 1050px;
-            margin: 35px auto;
-            padding: 0 20px;
+          margin: 22px auto;
+          padding: 0 14px;
         }
-
-        /* ---------- SEARCH ---------- */
 
         .search-section {
-            background: white;
-            padding: 24px;
-            border-radius: 14px;
-            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07);
-            border: 1px solid #e5e7eb;
-        }
-
-        .search-title {
-            margin: 0 0 5px;
-            font-size: 19px;
-        }
-
-        .search-subtitle {
-            margin: 0 0 18px;
-            color: #64748b;
-            font-size: 14px;
+          padding: 18px;
         }
 
         .search-box {
-            display: flex;
-            gap: 10px;
+          flex-direction: column;
         }
 
-        #query {
-            flex: 1;
-            padding: 14px 16px;
-            font-size: 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 9px;
-            outline: none;
-            transition: 0.2s;
+        .search-box button {
+          width: 100%;
         }
 
-        #query:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        .example-chip,
+        .view-source-btn {
+          width: auto;
         }
 
-        button {
-            padding: 14px 26px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 9px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
+        .result {
+          padding: 17px;
         }
 
-        button:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-        }
-
-        button:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .examples {
-            margin-top: 13px;
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        .examples {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 7px;
-        }
-
-        .examples-label {
-            color: #64748b;
-            font-size: 13px;
-            margin-right: 2px;
-        }
-
-        .example-chip {
-            width: auto;
-            padding: 6px 10px;
-            margin: 0;
-            background: #f8fafc;
-            color: #475569;
-            border: 1px solid #e2e8f0;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.18s;
-        }
-
-        .example-chip:hover {
-            background: #eff6ff;
-            color: #1d4ed8;
-            border-color: #bfdbfe;
-            transform: none;
+        .results-heading {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 3px;
         }
 
         .search-note {
-            display: flex;
-            gap: 7px;
-            align-items: center;
-            margin-top: 14px;
-            color: #64748b;
-            font-size: 12px;
-        }
-
-        .search-note span {
-            color: #2563eb;
-            font-weight: 700;
-        }
-
-        /* ---------- STATUS ---------- */
-
-        .results-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin: 24px 2px 15px;
-        }
-
-        #status {
-            margin: 0;
-            color: #475569;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .result-limit {
-            color: #94a3b8;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .loading-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            margin-right: 5px;
-            border-radius: 50%;
-            background: #2563eb;
-            animation: pulse 1s infinite ease-in-out;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.35; transform: scale(0.85); }
-            50% { opacity: 1; transform: scale(1); }
-        }
-
-        /* ---------- RESULTS ---------- */
-
-        .result {
-            background: white;
-            margin-bottom: 16px;
-            padding: 22px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
-            transition: 0.2s;
-        }
-
-        .result:hover {
-            border-color: #bfdbfe;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+          align-items: flex-start;
         }
 
         .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .result-number {
-            color: #94a3b8;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 5px;
-        }
-
-        .speaker-row {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            margin-bottom: 7px;
-        }
-
-        .speaker {
-            font-weight: 700;
-            font-size: 17px;
-            color: #1e293b;
-        }
-
-        .speaker-badge {
-            padding: 4px 9px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .location {
-            color: #64748b;
-            font-size: 13px;
+          flex-direction: column;
         }
 
         .score {
-            flex-shrink: 0;
-            background: #ecfdf5;
-            color: #047857;
-            padding: 6px 11px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
+          align-self: flex-start;
+        }
+        .topic-header {
+          flex-direction: column;
+          align-items: flex-start;
         }
 
-        /* ---------- MATCHED TERMS ---------- */
-
-        .matched {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 15px;
+        .topic-card-header {
+          flex-direction: column;
         }
 
-        .matched-label {
-            color: #64748b;
-            font-size: 12px;
-            padding: 5px 0;
+        .topic-location {
+          white-space: normal;
         }
+      }
 
-        .keyword {
-            background: #eff6ff;
-            color: #1d4ed8;
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-        }
+      /* =========================================================
+   DEPOINDEX HEADER
+   ========================================================= */
 
-        /* ---------- TEXT ---------- */
+      .app-header {
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 18px 0;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      }
 
-        .text {
-            line-height: 1.7;
-            font-size: 15px;
-            color: #334155;
-            white-space: pre-wrap;
-        }
+      .header-inner {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 0 20px;
 
-        .utterance {
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid #eef2f7;
-            color: #94a3b8;
-            font-size: 12px;
-        }
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
 
-        /* ---------- EMPTY / ERROR ---------- */
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
 
-        .empty {
-            text-align: center;
-            padding: 50px 20px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            color: #64748b;
-        }
+      .brand-icon {
+        width: 42px;
+        height: 42px;
 
-        .empty-icon {
-            font-size: 35px;
-            margin-bottom: 10px;
-        }
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-        /* ---------- FOOTER ---------- */
+        background: #0f766e;
+        color: white;
 
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            color: #94a3b8;
-            font-size: 12px;
-        }
+        border-radius: 10px;
 
-        /* ---------- RESPONSIVE ---------- */
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
 
-        @media (max-width: 600px) {
+        box-shadow: 0 4px 10px rgba(15, 118, 110, 0.18);
+      }
 
-            header {
-                padding: 32px 15px;
-            }
+      .brand-text h1 {
+        margin: 0;
 
-            header h1 {
-                font-size: 30px;
-            }
+        color: #172033;
 
-            .container {
-                margin: 22px auto;
-                padding: 0 14px;
-            }
+        font-size: 21px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+      }
 
-            .search-section {
-                padding: 18px;
-            }
+      .brand-text p {
+        margin: 3px 0 0;
 
-            .search-box {
-                flex-direction: column;
-            }
+        color: #64748b;
 
-            button {
-                width: 100%;
-            }
+        font-size: 12px;
+        line-height: 1.3;
+      }
 
-            .result {
-                padding: 17px;
-            }
+      .header-status {
+        display: flex;
+        align-items: center;
+        gap: 7px;
 
-            .results-heading {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 3px;
-            }
+        padding: 7px 11px;
 
-            .search-note {
-                align-items: flex-start;
-            }
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
 
-            .result-header {
-                flex-direction: column;
-            }
+        border-radius: 999px;
 
-            .score {
-                align-self: flex-start;
-            }
-        }
+        color: #15803d;
+
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+
+        background: #22c55e;
+        border-radius: 50%;
+
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-icon">DI</div>
 
-<header>
+          <div class="brand-text">
+            <h1>DepoIndex</h1>
+            <p>Deposition Topic Intelligence</p>
+          </div>
+        </div>
 
-    <div class="logo">
-        <div class="logo-icon">⌕</div>
-        <h1>DepoIndex</h1>
-    </div>
+        <div class="header-status">
+          <span class="status-dot"></span>
+          <span>Transcript Indexed</span>
+        </div>
+      </div>
+    </header>
 
-    <p>Search and explore deposition transcripts</p>
+    <div class="container">
+      <section class="hero-section">
+        <div class="hero-content">
+          <div class="hero-label">DEPOSITION ANALYSIS</div>
 
-</header>
+          <h2>
+            Find the topic.
+            <span>Verify the source.</span>
+          </h2>
 
+          <p>
+            Explore the deposition chronologically through meaningful topics,
+            exact page and line references, and source-level verification.
+          </p>
+        </div>
+      </section>
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">22</div>
+          <div class="stat-label">Topics</div>
+        </div>
 
-<div class="container">
+        <div class="stat-card">
+          <div class="stat-value">630</div>
+          <div class="stat-label">Utterances</div>
+        </div>
 
-    <section class="search-section">
+        <div class="stat-card">
+          <div class="stat-value">122</div>
+          <div class="stat-label">PDF Pages</div>
+        </div>
 
-        <h2 class="search-title">
-            Search deposition
-        </h2>
+        <div class="stat-card">
+          <div class="stat-value">Exact</div>
+          <div class="stat-label">Source References</div>
+        </div>
+      </section>
+
+      <section class="topic-section">
+        <div class="topic-header">
+          <div>
+            <h2>Deposition Topic Index</h2>
+            <p>
+              Chronologically organized topics with exact transcript page and
+              line references.
+            </p>
+          </div>
+
+          <div class="topic-stats" id="topicStats">Loading...</div>
+        </div>
+
+        <div id="topicList">
+          <div class="topic-loading">Loading Topic Index...</div>
+        </div>
+      </section>
+
+      <section class="search-section">
+        <h2 class="search-title">Search deposition</h2>
 
         <p class="search-subtitle">
-            Find relevant statements by keyword and inspect their source location.
+          Find relevant statements by keyword and inspect their source location.
         </p>
 
         <div class="search-box">
+          <input
+            id="query"
+            type="text"
+            placeholder="Try: loan payment, contract, student..."
+            autocomplete="off"
+          />
 
-            <input
-                id="query"
-                type="text"
-                placeholder="Try: loan payment, contract, student..."
-                autocomplete="off"
-            >
-
-            <button id="searchButton" onclick="searchDeposition()">
-                Search
-            </button>
-
+          <button id="searchButton" onclick="searchDeposition()">Search</button>
         </div>
 
         <div class="examples">
-            <span class="examples-label">Try searching:</span>
-            <button type="button" class="example-chip" data-query="loan">loan</button>
-            <button type="button" class="example-chip" data-query="payment">payment</button>
-            <button type="button" class="example-chip" data-query="contract">contract</button>
-            <button type="button" class="example-chip" data-query="student loan">student loan</button>
+          <span class="examples-label">Try searching:</span>
+          <button type="button" class="example-chip" data-query="loan">
+            loan
+          </button>
+          <button type="button" class="example-chip" data-query="payment">
+            payment
+          </button>
+          <button type="button" class="example-chip" data-query="contract">
+            contract
+          </button>
+          <button type="button" class="example-chip" data-query="student loan">
+            student loan
+          </button>
         </div>
 
         <div class="search-note">
-            <span>↳</span>
-            Results are ranked by relevance. DepoIndex shows the top 5 matching passages.
+          <span>↳</span>
+          Results are ranked by relevance. DepoIndex shows the top 5 matching
+          passages.
+        </div>
+      </section>
+
+      <div id="status"></div>
+
+      <div id="results"></div>
+    </div>
+
+    <footer>DepoIndex · Deposition Transcript Search</footer>
+
+    <script>
+      async function loadTopics() {
+        const topicList = document.getElementById("topicList");
+        const topicStats = document.getElementById("topicStats");
+
+        try {
+          const response = await fetch("/topics");
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to load topics.");
+          }
+
+          const topics = Array.isArray(data) ? data : data.topics;
+
+          if (!topics || topics.length === 0) {
+            topicList.innerHTML = `
+                <div class="empty">
+                    <div class="empty-icon">📑</div>
+                    <strong>No topics available</strong>
+                </div>
+            `;
+            return;
+          }
+
+          topicStats.textContent = `${topics.length} Topics`;
+
+          topicList.innerHTML = "";
+
+          topics.forEach((topic) => {
+            const card = document.createElement("div");
+            card.className = "topic-card";
+
+            const relatedTopics = topic.related_topics || [];
+
+            const relatedHTML =
+              relatedTopics.length > 0
+                ? `
+                    <div class="topic-related">
+                        <strong>Related / Re-entry:</strong>
+                        ${relatedTopics.map((id) => escapeHTML(id)).join(", ")}
+                    </div>
+                  `
+                : "";
+
+            card.innerHTML = `
+    <div class="topic-card-header">
+
+        <div>
+            <div class="topic-id">
+                ${escapeHTML(topic.topic_id)}
+            </div>
+
+            <h3 class="topic-title">
+                ${escapeHTML(topic.topic)}
+            </h3>
         </div>
 
-    </section>
+        <div class="topic-location">
+            📄 P${escapeHTML(topic.start.page)}
+            L${escapeHTML(topic.start.line)}
+            →
+            P${escapeHTML(topic.end.page)}
+            L${escapeHTML(topic.end.line)}
+        </div>
 
+    </div>
 
-    <div id="status"></div>
+    <div class="topic-excerpt">
+        ${escapeHTML(topic.excerpt || "")}
+    </div>
 
-    <div id="results"></div>
+    <div class="topic-meta">
 
-</div>
+        <span class="topic-badge">
+            ${escapeHTML(topic.utterance_count)} utterances
+        </span>
 
+        <span class="topic-badge">
+            Start: P${escapeHTML(topic.start.page)}
+            L${escapeHTML(topic.start.line)}
+        </span>
 
-<footer>
-    DepoIndex · Deposition Transcript Search
-</footer>
+        <span class="topic-badge">
+            End: P${escapeHTML(topic.end.page)}
+            L${escapeHTML(topic.end.line)}
+        </span>
 
+    </div>
 
-<script>
+    ${relatedHTML}
 
-async function searchDeposition() {
+    <button
+        class="view-source-btn"
+        onclick="viewTopicSource('${escapeHTML(topic.topic_id)}')">
+        View source
+    </button>
 
-    const queryInput = document.getElementById("query");
-    const resultsDiv = document.getElementById("results");
-    const statusDiv = document.getElementById("status");
-    const searchButton = document.getElementById("searchButton");
+    <div
+        class="source-panel"
+        id="source-${escapeHTML(topic.topic_id)}"
+        style="display: none;">
+    </div>
+`;
 
-    const query = queryInput.value.trim();
+            topicList.appendChild(card);
+          });
+        } catch (error) {
+          topicStats.textContent = "Unavailable";
 
-    if (!query) {
+          topicList.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">⚠️</div>
+                <strong>Could not load Topic Index</strong>
+                <p>${escapeHTML(error.message)}</p>
+            </div>
+        `;
 
-        statusDiv.textContent = "Please enter a search query.";
-        resultsDiv.innerHTML = "";
+          console.error(error);
+        }
+      }
+      async function searchDeposition() {
+        const queryInput = document.getElementById("query");
+        const resultsDiv = document.getElementById("results");
+        const statusDiv = document.getElementById("status");
+        const searchButton = document.getElementById("searchButton");
 
-        return;
-    }
+        const query = queryInput.value.trim();
 
-    statusDiv.innerHTML = `<span class="loading-dot"></span> Searching deposition...`;
-    resultsDiv.innerHTML = "";
-    searchButton.disabled = true;
-    searchButton.textContent = "Searching...";
+        if (!query) {
+          statusDiv.textContent = "Please enter a search query.";
+          resultsDiv.innerHTML = "";
 
-
-    try {
-
-        const response = await fetch(
-            `/search?q=${encodeURIComponent(query)}&limit=5`
-        );
-
-        const data = await response.json();
-
-
-        if (!response.ok) {
-
-            statusDiv.textContent =
-                data.error || "Search failed.";
-
-            return;
+          return;
         }
 
+        statusDiv.innerHTML = `<span class="loading-dot"></span> Searching deposition...`;
+        resultsDiv.innerHTML = "";
+        searchButton.disabled = true;
+        searchButton.textContent = "Searching...";
 
-        statusDiv.textContent =
-            `Showing top ${data.count} relevant passage${data.count === 1 ? "" : "s"} for "${data.query}"`;
+        try {
+          const response = await fetch(
+            `/search?q=${encodeURIComponent(query)}&limit=5`,
+          );
 
+          const data = await response.json();
 
-        if (data.results.length === 0) {
+          if (!response.ok) {
+            statusDiv.textContent = data.error || "Search failed.";
 
+            return;
+          }
+
+          statusDiv.textContent = `Showing top ${data.count} relevant passage${data.count === 1 ? "" : "s"} for "${data.query}"`;
+
+          if (data.results.length === 0) {
             resultsDiv.innerHTML = `
                 <div class="empty">
 
@@ -545,11 +1451,9 @@ async function searchDeposition() {
             `;
 
             return;
-        }
+          }
 
-
-        data.results.forEach((result, index) => {
-
+          data.results.forEach((result, index) => {
             const start = result.start;
             const end = result.end;
 
@@ -557,15 +1461,11 @@ async function searchDeposition() {
 
             card.className = "result";
 
-
             const matchedTerms = result.matched_terms || [];
 
             const keywordHTML = matchedTerms
-                .map(term =>
-                    `<span class="keyword">${escapeHTML(term)}</span>`
-                )
-                .join("");
-
+              .map((term) => `<span class="keyword">${escapeHTML(term)}</span>`)
+              .join("");
 
             card.innerHTML = `
 
@@ -602,7 +1502,7 @@ async function searchDeposition() {
 
 
                 ${
-                    matchedTerms.length > 0
+                  matchedTerms.length > 0
                     ? `
                         <div class="matched">
 
@@ -630,60 +1530,159 @@ async function searchDeposition() {
             `;
 
             resultsDiv.appendChild(card);
+          });
+        } catch (error) {
+          statusDiv.textContent = "Could not connect to the server.";
 
-        });
+          console.error(error);
+        } finally {
+          searchButton.disabled = false;
+          searchButton.textContent = "Search";
+        }
+      }
 
-    }
+      /* ---------- SECURITY ---------- */
 
+      function escapeHTML(text) {
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
-    catch (error) {
+      /* ---------- ENTER KEY ---------- */
 
-        statusDiv.textContent =
-            "Could not connect to the server.";
-
-        console.error(error);
-
-    }
-
-
-    finally {
-
-        searchButton.disabled = false;
-        searchButton.textContent = "Search";
-
-    }
-
-}
-
-
-/* ---------- SECURITY ---------- */
-
-function escapeHTML(text) {
-
-    return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* ---------- ENTER KEY ---------- */
-
-document.getElementById("query").addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Enter") {
+      document
+        .getElementById("query")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
             searchDeposition();
+          }
+        });
+      loadTopics();
+      async function viewTopicSource(topicId) {
+        const panel = document.getElementById(`source-${topicId}`);
+
+        if (!panel) {
+          return;
         }
 
-    }
-);
+        // Toggle if already open
+        if (panel.style.display === "block") {
+          panel.style.display = "none";
+          return;
+        }
 
-</script>
+        panel.style.display = "block";
 
-</body>
+        panel.innerHTML = `
+        <div class="source-loading">
+            Loading original transcript...
+        </div>
+    `;
+
+        try {
+          const response = await fetch(
+            `/topic/${encodeURIComponent(topicId)}/source`,
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || "Could not load source.");
+          }
+
+          if (!data.utterances || data.utterances.length === 0) {
+            panel.innerHTML = `
+                <div class="source-empty">
+                    No transcript source found.
+                </div>
+            `;
+            return;
+          }
+
+          let html = `
+            <div class="source-header">
+
+                <div>
+                    <strong>
+                        Original Transcript
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(data.topic_id)}
+                    </span>
+                </div>
+
+                <div class="source-range">
+                    P${escapeHTML(data.start.page)}
+                    L${escapeHTML(data.start.line)}
+                    →
+                    P${escapeHTML(data.end.page)}
+                    L${escapeHTML(data.end.line)}
+                </div>
+
+            </div>
+
+            <div class="source-content">
+        `;
+
+          data.utterances.forEach((utterance) => {
+            const startPage = utterance.start.page;
+            const startLine = utterance.start.line;
+
+            const endPage = utterance.end.page;
+            const endLine = utterance.end.line;
+
+            html += `
+                <div class="source-utterance">
+
+                    <div class="source-location">
+                        P${escapeHTML(startPage)}
+                        L${escapeHTML(startLine)}
+
+                        ${
+                          startPage !== endPage || startLine !== endLine
+                            ? ` → P${escapeHTML(endPage)}
+                               L${escapeHTML(endLine)}`
+                            : ""
+                        }
+                    </div>
+
+                    <div class="source-speaker">
+                        ${escapeHTML(utterance.speaker)}
+                    </div>
+
+                    <div class="source-text">
+                        ${escapeHTML(utterance.text)}
+                    </div>
+
+                    <div class="source-id">
+                        ${escapeHTML(utterance.utterance_id)}
+                    </div>
+
+                </div>
+            `;
+          });
+
+          html += `
+            </div>
+        `;
+
+          panel.innerHTML = html;
+        } catch (error) {
+          panel.innerHTML = `
+            <div class="source-error">
+                <strong>Could not load source.</strong>
+                <p>${escapeHTML(error.message)}</p>
+            </div>
+        `;
+
+          console.error(error);
+        }
+      }
+    </script>
+  </body>
 </html>
