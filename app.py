@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory
-
+import os
 from src.extraction import extract_pdf_pages, parse_transcript_lines
 from src.utterances import segment_utterances
 from src.index import DepositionIndex
@@ -123,5 +123,8 @@ def search():
     })
 
 
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
